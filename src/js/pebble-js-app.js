@@ -1,18 +1,26 @@
 var initialized = false;
-
-Pebble.addEventListener("ready", function() {
-  console.log("ready called!");
+var my = { options : {  } };
+Pebble.addEventListener("ready", function(e) {
+  var _raw = window.localStorage.getItem('cgmPebble');
+  my.raw = _raw;
+  if (_raw) {
+    my.options = JSON.parse(_raw);
+  }
+  
+  console.log('endpoint', (my.options.endpoint), JSON.stringify(my));
   initialized = true;
 });
 
-Pebble.addEventListener("showConfiguration", function() {
-  console.log("showing configuration");
-  Pebble.openURL('http://assets.getpebble.com.s3-website-us-east-1.amazonaws.com/pebble-js/configurable.html');
+Pebble.addEventListener("showConfiguration", function(e) {
+  console.log("showing configuration", JSON.stringify(e));
+  Pebble.openURL('http://bewest.github.io/cgm-pebble/configurable.html');
 });
 
 Pebble.addEventListener("webviewclosed", function(e) {
   console.log("configuration closed");
   // webview closed
-  var options = JSON.parse(decodeURIComponent(e.response));
+  var options = e.response.length > 5 ? JSON.parse(decodeURIComponent(e.response)): null;
+  window.localStorage.setItem('cgmPebble', JSON.stringify(options));
+  my.options = options;
   console.log("Options = " + JSON.stringify(options));
 });
